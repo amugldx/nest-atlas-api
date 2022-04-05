@@ -15,8 +15,23 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  email    String  @unique
-  username String  @unique
+  email    String   @unique
+  username String   @unique
   hash     String
   hashedRt String?
+  profile  Profile?
+}
+
+model Profile {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  firstname String
+  lastname  String
+  picture   String?
+  about     String
+  location  String
+  user      User    @relation(fields: [userId], references: [id])
+  userId    Int     @unique
 }
