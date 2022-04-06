@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   UploadedFile,
   UseInterceptors,
@@ -11,14 +12,36 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { GetCurrentUserId } from 'src/common/decorators';
 import { ProfileService } from './profile.service';
 import { ProfileDto } from './dtos/profile.dto';
+import {
+  ApiCreatedResponse,
+  ApiBody,
+  ApiBearerAuth,
+  ApiTags,
+  ApiOkResponse,
+  ApiConsumes,
+} from '@nestjs/swagger';
 import { Profile } from '@prisma/client';
 
+@ApiTags('Profile Routes')
 @Controller('profile')
 export class ProfileController {
   constructor(private profileService: ProfileService) {}
 
   @Post('picture')
   @UseInterceptors(FileInterceptor('file'))
+  @ApiBearerAuth()
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   uploadProfile(
     @UploadedFile() file: Express.Multer.File,
     @GetCurrentUserId() userId: number,
@@ -26,21 +49,39 @@ export class ProfileController {
     return this.profileService.uploadPicture(file, userId);
   }
 
-  @Post('data')
-  uploadData(
+  @Post('create')
+  @ApiCreatedResponse({ description: 'Profile data added' })
+  @ApiBody({ type: ProfileDto })
+  @ApiBearerAuth()
+  createProfile(
     @Body() dto: ProfileDto,
     @GetCurrentUserId() userId: number,
   ): Promise<Profile> {
-    return this.profileService.uploadData(dto, userId);
+    return this.profileService.createProfile(dto, userId);
   }
 
+  @Post('update')
+  @ApiCreatedResponse({ description: 'Profile data updated' })
+  @ApiBody({ type: ProfileDto })
+  @ApiBearerAuth()
+  updateProfile(
+    @Body() dto: ProfileDto,
+    @GetCurrentUserId() userId: number,
+  ): Promise<Profile> {
+    return this.profileService.updateProfile(dto, userId);
+  }
+
+  @ApiOkResponse({ description: 'Data successfully featched' })
+  @ApiBearerAuth()
   @Get('/me')
   getProfile(@GetCurrentUserId() userId: number): Promise<Profile> {
     return this.profileService.getProfile(userId);
   }
 
   @Get('/:id')
-  getProfileById(@Param('id') id: number) {
+  @ApiOkResponse({ description: 'Data successfully featched' })
+  @ApiBearerAuth()
+  getProfileById(@Param('id', ParseIntPipe) id: number): Promise<Profile> {
     return this.profileService.getProfile(id);
   }
 }

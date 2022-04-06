@@ -38,7 +38,7 @@ export class ProfileService {
     return picture.secure_url;
   }
 
-  async uploadData(dto: ProfileDto, userId: number): Promise<Profile> {
+  async createProfile(dto: ProfileDto, userId: number): Promise<Profile> {
     await this.getUser(userId);
     await this.prisma.user.update({
       where: {
@@ -57,14 +57,30 @@ export class ProfileService {
       },
     });
 
-    const profile = await this.prisma.profile.findUnique({
-      where: {
-        userId: userId,
-      },
-    });
+    const profile = await this.getProfile(userId);
     return profile;
   }
 
+  async updateProfile(dto: ProfileDto, userId: number): Promise<Profile> {
+    await this.getUser(userId);
+    await this.prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        profile: {
+          update: {
+            firstname: dto.firstname,
+            lastname: dto.firstname,
+            about: dto.about,
+            location: dto.location,
+          },
+        },
+      },
+    });
+    const profile = await this.getProfile(userId);
+    return profile;
+  }
   async getProfile(userId: number): Promise<Profile> {
     const profile = await this.prisma.profile.findUnique({
       where: {
