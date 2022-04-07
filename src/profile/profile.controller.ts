@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   UploadedFile,
   UseInterceptors,
@@ -60,7 +61,7 @@ export class ProfileController {
     return this.profileService.createProfile(dto, userId);
   }
 
-  @Post('update')
+  @Patch('update')
   @ApiCreatedResponse({ description: 'Profile data updated' })
   @ApiBody({ type: ProfileDto })
   @ApiBearerAuth()

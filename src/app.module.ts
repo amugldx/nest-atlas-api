@@ -6,6 +6,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { AtGuard } from './common/guards';
 import { ProfileModule } from './profile/profile.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { HotelModule } from './hotel/hotel.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     AuthModule,
     ProfileModule,
     CloudinaryModule,
+    HotelModule,
   ],
   providers: [
     {

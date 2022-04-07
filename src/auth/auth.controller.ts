@@ -24,7 +24,7 @@ import { AuthService } from './auth.service';
 import { AuthDto } from './dto';
 import { Tokens } from './types';
 
-@ApiTags('Auth routes')
+@ApiTags('Auth Routes')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}

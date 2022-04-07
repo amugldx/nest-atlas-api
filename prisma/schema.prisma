@@ -20,6 +20,8 @@ model User {
   hash     String
   hashedRt String?
   profile  Profile?
+
+  @@map("users")
 }
 
 model Profile {
@@ -34,4 +36,21 @@ model Profile {
   location  String
   user      User    @relation(fields: [userId], references: [id])
   userId    Int     @unique
+
+  @@map("profile")
+}
+
+model Hotel {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name        String
+  location    String
+  description String
+  temperature Int
+  address     String @unique
+  price       Int
+
+  @@map("hotel")
 }

@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "hotel" ALTER COLUMN "price" SET DATA TYPE TEXT,
+ALTER COLUMN "temperature" SET DATA TYPE TEXT;
