@@ -31,4 +31,9 @@ export class CreateHotelDto {
   @IsNumber()
   @ApiProperty({ type: Number, description: 'price' })
   price: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @ApiProperty({ type: Boolean, description: 'featured' })
+  featured: boolean;
 }

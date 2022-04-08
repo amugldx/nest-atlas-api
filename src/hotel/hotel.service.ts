@@ -24,6 +24,7 @@ export class HotelService {
           location: dto.location,
           price: dto.price,
           temperature: dto.temperature,
+          featured: dto.featured,
         },
         update: {},
       })
@@ -75,6 +76,7 @@ export class HotelService {
           location: dto.location,
           price: dto.price,
           temperature: dto.temperature,
+          featured: dto.featured,
         },
       })
       .catch((error) => {

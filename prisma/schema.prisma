@@ -15,11 +15,12 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  email    String   @unique
-  username String   @unique
+  email    String  @unique
+  username String  @unique
   hash     String
   hashedRt String?
-  profile  Profile?
+
+  profile Profile?
 
   @@map("users")
 }
@@ -35,8 +36,9 @@ model Profile {
   picture   String?
   about     String
   location  String
-  user      User    @relation(fields: [userId], references: [id])
-  userId    Int     @unique
+
+  user   User @relation(fields: [userId], references: [id])
+  userId Int  @unique
 
   @@map("profile")
 }
@@ -50,9 +52,11 @@ model Hotel {
   location    String
   description String
   temperature Int
-  address     String   @unique
+  address     String  @unique
   price       Int
-  amenities   Amenity?
+  featured    Boolean
+
+  amenities Amenity?
 
   @@map("hotel")
 }
@@ -68,8 +72,9 @@ model Amenity {
   innBar         Boolean
   parkingSpot    Boolean
   nightClub      Boolean
-  hotel          Hotel   @relation(fields: [hotelId], references: [id])
-  hotelId        Int     @unique
+
+  hotel   Hotel @relation(fields: [hotelId], references: [id])
+  hotelId Int   @unique
 
   @@map("amenities")
 }
