@@ -5,12 +5,13 @@ import {
 } from '@nestjs/common';
 import { CreateHotelDto } from './dto/create-hotel.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { Amenity, Hotel } from '@prisma/client';
 
 @Injectable()
 export class HotelService {
   constructor(private prisma: PrismaService) {}
 
-  async create(dto: CreateHotelDto) {
+  async create(dto: CreateHotelDto): Promise<Hotel> {
     const hotel = await this.prisma.hotel
       .upsert({
         where: {
@@ -32,27 +33,35 @@ export class HotelService {
     return hotel;
   }
 
-  async findAll() {
-    const hotels = await this.prisma.hotel.findMany();
+  async findAll(): Promise<
+    (Hotel & {
+      amenities: Amenity;
+    })[]
+  > {
+    const hotels = await this.prisma.hotel.findMany({
+      include: {
+        amenities: true,
+      },
+    });
     if (!hotels) {
       throw new NotFoundException('Hotels not found');
     }
     return hotels;
   }
 
-  async findOne(id: number) {
+  async findOne(id: number): Promise<Hotel> {
     const hotel = await this.prisma.hotel.findUnique({
       where: {
         id: id,
       },
     });
     if (!hotel) {
-      return new NotFoundException('Hotel not found');
+      throw new NotFoundException('Hotel not found');
     }
     return hotel;
   }
 
-  async update(id: number, dto: Partial<CreateHotelDto>) {
+  async update(id: number, dto: Partial<CreateHotelDto>): Promise<Hotel> {
     await this.findOne(id);
     const updatedHotel = this.prisma.hotel
       .update({
@@ -74,12 +83,19 @@ export class HotelService {
     return updatedHotel;
   }
 
-  async remove(id: number) {
+  async remove(id: number): Promise<void | Hotel> {
     await this.findOne(id);
-    await this.prisma.hotel.delete({
-      where: {
-        id: id,
-      },
-    });
+    const removedHotel = await this.prisma.hotel
+      .delete({
+        where: {
+          id: id,
+        },
+      })
+      .catch((error) => {
+        if (error) {
+          throw new NotFoundException('Hotel does not exists');
+        }
+      });
+    return removedHotel;
   }
 }

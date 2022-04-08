@@ -6,7 +6,8 @@ import {
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { ProfileDto } from './dtos/profile.dto';
 import { PrismaService } from '../prisma/prisma.service';
-import { Profile } from '@prisma/client';
+import { Profile, User } from '@prisma/client';
+import { HttpException } from '@nestjs/common';
 
 @Injectable()
 export class ProfileService {
@@ -38,48 +39,79 @@ export class ProfileService {
     return picture.secure_url;
   }
 
-  async createProfile(dto: ProfileDto, userId: number): Promise<Profile> {
+  async createProfile(
+    dto: ProfileDto,
+    userId: number,
+  ): Promise<
+    | void
+    | (User & {
+        profile: Profile;
+      })
+  > {
     await this.getUser(userId);
-    await this.prisma.user.update({
-      where: {
-        id: userId,
-      },
-      data: {
-        profile: {
-          create: {
-            firstname: dto.firstname,
-            lastname: dto.firstname,
-            about: dto.about,
-            location: dto.location,
-            picture: null,
+    const userWithProfile = await this.prisma.user
+      .update({
+        where: {
+          id: userId,
+        },
+        data: {
+          profile: {
+            create: {
+              firstname: dto.firstname,
+              lastname: dto.firstname,
+              about: dto.about,
+              location: dto.location,
+              picture: null,
+            },
           },
         },
-      },
-    });
-
-    const profile = await this.getProfile(userId);
-    return profile;
+        include: {
+          profile: true,
+        },
+      })
+      .catch((error) => {
+        if (error) {
+          throw new HttpException('Cant create already existing profile', 400);
+        }
+      });
+    return userWithProfile;
   }
 
-  async updateProfile(dto: ProfileDto, userId: number): Promise<Profile> {
+  async updateProfile(
+    dto: ProfileDto,
+    userId: number,
+  ): Promise<
+    | void
+    | (User & {
+        profile: Profile;
+      })
+  > {
     await this.getUser(userId);
-    await this.prisma.user.update({
-      where: {
-        id: userId,
-      },
-      data: {
-        profile: {
-          update: {
-            firstname: dto.firstname,
-            lastname: dto.firstname,
-            about: dto.about,
-            location: dto.location,
+    const userWithProfile = await this.prisma.user
+      .update({
+        where: {
+          id: userId,
+        },
+        data: {
+          profile: {
+            update: {
+              firstname: dto.firstname,
+              lastname: dto.firstname,
+              about: dto.about,
+              location: dto.location,
+            },
           },
         },
-      },
-    });
-    const profile = await this.getProfile(userId);
-    return profile;
+        include: {
+          profile: true,
+        },
+      })
+      .catch((error) => {
+        if (error) {
+          throw new HttpException(error, 400);
+        }
+      });
+    return userWithProfile;
   }
   async getProfile(userId: number): Promise<Profile> {
     const profile = await this.prisma.profile.findUnique({

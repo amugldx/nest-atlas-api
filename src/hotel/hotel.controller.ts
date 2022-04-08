@@ -14,6 +14,7 @@ import { HotelService } from './hotel.service';
 import { CreateHotelDto } from './dto/create-hotel.dto';
 import { ApiBody, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { Public } from 'src/common/decorators';
+import { Amenity, Hotel } from '@prisma/client';
 
 @ApiTags('Hotel Routes')
 @Controller('hotel')
@@ -25,7 +26,7 @@ export class HotelController {
   @ApiCreatedResponse({ description: 'Hotel Created' })
   @ApiBody({ type: CreateHotelDto })
   @Post()
-  create(@Body() dto: CreateHotelDto) {
+  create(@Body() dto: CreateHotelDto): Promise<Hotel> {
     return this.hotelService.create(dto);
   }
 
@@ -33,7 +34,11 @@ export class HotelController {
   @HttpCode(HttpStatus.FOUND)
   @ApiCreatedResponse({ description: 'All hotels recieved' })
   @Get()
-  findAll() {
+  findAll(): Promise<
+    (Hotel & {
+      amenities: Amenity;
+    })[]
+  > {
     return this.hotelService.findAll();
   }
 
@@ -41,7 +46,7 @@ export class HotelController {
   @HttpCode(HttpStatus.FOUND)
   @ApiCreatedResponse({ description: 'hotel with given id recieved' })
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<Hotel> {
     return this.hotelService.findOne(id);
   }
 
@@ -53,7 +58,7 @@ export class HotelController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: Partial<CreateHotelDto>,
-  ) {
+  ): Promise<Hotel> {
     return this.hotelService.update(id, dto);
   }
 
@@ -61,7 +66,7 @@ export class HotelController {
   @HttpCode(HttpStatus.OK)
   @ApiCreatedResponse({ description: 'hotel with given id deleted' })
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
+  remove(@Param('id', ParseIntPipe) id: number): Promise<void | Hotel> {
     return this.hotelService.remove(id);
   }
 }

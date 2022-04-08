@@ -49,8 +49,26 @@ model Hotel {
   location    String
   description String
   temperature Int
-  address     String @unique
+  address     String   @unique
   price       Int
+  amenities   Amenity?
 
   @@map("hotel")
+}
+
+model Amenity {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  wifi           Boolean
+  hotelResturant Boolean
+  swimmingPool   Boolean
+  innBar         Boolean
+  parkingSpot    Boolean
+  nightClub      Boolean
+  hotel          Hotel   @relation(fields: [hotelId], references: [id])
+  hotelId        Int     @unique
+
+  @@map("amenities")
 }

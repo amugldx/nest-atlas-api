@@ -7,6 +7,7 @@ import { AtGuard } from './common/guards';
 import { ProfileModule } from './profile/profile.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { HotelModule } from './hotel/hotel.module';
+import { AmenitiesModule } from './amenities/amenities.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { HotelModule } from './hotel/hotel.module';
     ProfileModule,
     CloudinaryModule,
     HotelModule,
+    AmenitiesModule,
   ],
   providers: [
     {

@@ -21,7 +21,7 @@ import {
   ApiOkResponse,
   ApiConsumes,
 } from '@nestjs/swagger';
-import { Profile } from '@prisma/client';
+import { Profile, User } from '@prisma/client';
 
 @ApiTags('Profile Routes')
 @Controller('profile')
@@ -57,7 +57,12 @@ export class ProfileController {
   createProfile(
     @Body() dto: ProfileDto,
     @GetCurrentUserId() userId: number,
-  ): Promise<Profile> {
+  ): Promise<
+    | void
+    | (User & {
+        profile: Profile;
+      })
+  > {
     return this.profileService.createProfile(dto, userId);
   }
 
@@ -68,7 +73,12 @@ export class ProfileController {
   updateProfile(
     @Body() dto: ProfileDto,
     @GetCurrentUserId() userId: number,
-  ): Promise<Profile> {
+  ): Promise<
+    | void
+    | (User & {
+        profile: Profile;
+      })
+  > {
     return this.profileService.updateProfile(dto, userId);
   }
 
