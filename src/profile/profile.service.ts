@@ -19,7 +19,7 @@ export class ProfileService {
   async uploadPicture(
     file: Express.Multer.File,
     userId: number,
-  ): Promise<string> {
+  ): Promise<Profile> {
     const picture = await this.cloudinary.uploadImage(file).catch(() => {
       throw new BadRequestException('Invalid file type');
     });
@@ -32,11 +32,13 @@ export class ProfileService {
         profile: {
           update: {
             picture: picture.secure_url,
+            pictureId: picture.public_id,
           },
         },
       },
     });
-    return picture.secure_url;
+    const profile = await this.getProfile(userId);
+    return profile;
   }
 
   async createProfile(

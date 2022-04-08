@@ -31,6 +31,7 @@ model Profile {
 
   firstname String
   lastname  String
+  pictureId String?
   picture   String?
   about     String
   location  String

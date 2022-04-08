@@ -46,7 +46,7 @@ export class ProfileController {
   uploadProfile(
     @UploadedFile() file: Express.Multer.File,
     @GetCurrentUserId() userId: number,
-  ): Promise<string> {
+  ): Promise<Profile> {
     return this.profileService.uploadPicture(file, userId);
   }
 
