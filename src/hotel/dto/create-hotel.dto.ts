@@ -1,4 +1,4 @@
-import { IsInt, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateHotelDto {
@@ -33,7 +33,7 @@ export class CreateHotelDto {
   price: number;
 
   @IsNotEmpty()
-  @IsNumber()
+  @IsBoolean()
   @ApiProperty({ type: Boolean, description: 'featured' })
   featured: boolean;
 }

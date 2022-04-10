@@ -7,7 +7,7 @@ import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { ProfileDto } from './dtos/profile.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { Profile, User } from '@prisma/client';
-import { HttpException } from '@nestjs/common';
+import { HttpException, ForbiddenException } from '@nestjs/common';
 
 @Injectable()
 export class ProfileService {
@@ -137,5 +137,30 @@ export class ProfileService {
       throw new NotFoundException('There is no user record with given data');
     }
     return user;
+  }
+
+  async deleteProfile(userId: number) {
+    await this.getUser(userId);
+    const imageUrl = await this.prisma.profile.findUnique({
+      where: {
+        userId: userId,
+      },
+      select: {
+        pictureId: true,
+      },
+    });
+    await this.cloudinary.deleteImage(imageUrl.pictureId);
+    const removedProfile = await this.prisma.profile
+      .delete({
+        where: {
+          userId: userId,
+        },
+      })
+      .catch((error) => {
+        if (error) {
+          throw new ForbiddenException('Unable to delete the profile');
+        }
+      });
+    return removedProfile;
   }
 }

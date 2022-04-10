@@ -56,7 +56,8 @@ model Hotel {
   price       Int
   featured    Boolean
 
-  amenities Amenity?
+  amenities  Amenity?
+  activities Activities?
 
   @@map("hotel")
 }
@@ -77,4 +78,41 @@ model Amenity {
   hotelId Int   @unique
 
   @@map("amenities")
+}
+
+model SingleActivity {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  time        DateTime
+  title       String
+  description String
+  imageUrl    String
+  category    ActivityCategory
+
+  activites    Activities @relation(fields: [activitiesId], references: [id])
+  activitiesId Int
+
+  @@map("singleActivity")
+}
+
+model Activities {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  activity SingleActivity[]
+  hotel    Hotel            @relation(fields: [hotelId], references: [id])
+  hotelId  Int              @unique
+
+  @@map("activites")
+}
+
+enum ActivityCategory {
+  natures_light
+  cultural
+  mordern_life
+  popularity
+  sun_and_sand
 }

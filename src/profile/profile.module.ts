@@ -7,5 +7,6 @@ import { CloudinaryModule } from '../cloudinary/cloudinary.module';
   controllers: [ProfileController],
   providers: [ProfileService],
   imports: [CloudinaryModule],
+  exports: [ProfileService],
 })
 export class ProfileModule {}

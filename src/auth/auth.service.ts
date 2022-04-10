@@ -7,6 +7,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 import { AuthDto } from './dto';
 import { JwtPayload, Tokens } from './types';
+import { ProfileService } from '../profile/profile.service';
 
 @Injectable()
 export class AuthService {
@@ -14,6 +15,7 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private config: ConfigService,
+    private profileService: ProfileService,
   ) {}
 
   async signup(dto: AuthDto): Promise<Tokens> {
@@ -108,6 +110,27 @@ export class AuthService {
     await this.updateRtHash(user.id, tokens.refresh_token);
 
     return tokens;
+  }
+
+  async deleteUser(userId: number) {
+    await this.profileService.deleteProfile(userId);
+    const deletedUser = await this.prisma.user
+      .delete({
+        where: {
+          id: userId,
+        },
+        select: {
+          hash: false,
+          hashedRt: false,
+          email: false,
+        },
+      })
+      .catch((error) => {
+        if (error) {
+          throw new ForbiddenException('Unable to delete the user');
+        }
+      });
+    return deletedUser;
   }
 
   async updateRtHash(userId: number, rt: string): Promise<void> {

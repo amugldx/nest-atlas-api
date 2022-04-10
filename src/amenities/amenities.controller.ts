@@ -4,7 +4,6 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
   ParseIntPipe,
   HttpCode,
   HttpStatus,
@@ -23,7 +22,10 @@ export class AmenitiesController {
   @Public()
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({ description: 'Amenity Created' })
-  @ApiBody({ type: CreateAmenityDto })
+  @ApiBody({
+    type: CreateAmenityDto,
+    description: 'Recieves hotel id as id paramerter',
+  })
   @Post(':id')
   create(
     @Param('id', ParseIntPipe) hotelId: number,
@@ -40,7 +42,10 @@ export class AmenitiesController {
   @Public()
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({ description: 'Amenity Updated' })
-  @ApiBody({ type: CreateAmenityDto })
+  @ApiBody({
+    type: CreateAmenityDto,
+    description: 'Recieves hotel id as parameter',
+  })
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -52,13 +57,5 @@ export class AmenitiesController {
       })
   > {
     return this.amenitiesService.update(id, dto);
-  }
-
-  @Public()
-  @HttpCode(HttpStatus.OK)
-  @ApiCreatedResponse({ description: 'Amenity Deleted' })
-  @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number): Promise<void | Amenity> {
-    return this.amenitiesService.remove(id);
   }
 }

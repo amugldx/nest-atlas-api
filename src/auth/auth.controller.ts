@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   HttpCode,
   HttpStatus,
   Post,
@@ -14,6 +15,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { User } from '@prisma/client';
 import {
   GetCurrentUser,
   GetCurrentUserId,
@@ -89,5 +91,13 @@ export class AuthController {
     @GetCurrentUser('refreshToken') refreshToken: string,
   ): Promise<Tokens> {
     return this.authService.refreshTokens(userId, refreshToken);
+  }
+
+  @Delete('delete')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ description: 'User Deleted' })
+  @ApiBearerAuth()
+  deleteUser(@GetCurrentUserId() userId: number) {
+    return this.authService.deleteUser(userId);
   }
 }

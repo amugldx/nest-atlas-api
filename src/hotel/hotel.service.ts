@@ -6,10 +6,14 @@ import {
 import { CreateHotelDto } from './dto/create-hotel.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { Amenity, Hotel } from '@prisma/client';
+import { AmenitiesService } from '../amenities/amenities.service';
 
 @Injectable()
 export class HotelService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private amenitiesService: AmenitiesService,
+  ) {}
 
   async create(dto: CreateHotelDto): Promise<Hotel> {
     const hotel = await this.prisma.hotel
@@ -87,6 +91,7 @@ export class HotelService {
 
   async remove(id: number): Promise<void | Hotel> {
     await this.findOne(id);
+    await this.amenitiesService.remove(id);
     const removedHotel = await this.prisma.hotel
       .delete({
         where: {
