@@ -5,14 +5,16 @@ import {
 } from '@nestjs/common';
 import { CreateHotelDto } from './dto/create-hotel.dto';
 import { PrismaService } from '../prisma/prisma.service';
-import { Amenity, Hotel } from '@prisma/client';
+import { Activities, Amenity, Hotel } from '@prisma/client';
 import { AmenitiesService } from '../amenities/amenities.service';
+import { ActivitiesService } from '../activities/activities.service';
 
 @Injectable()
 export class HotelService {
   constructor(
     private prisma: PrismaService,
     private amenitiesService: AmenitiesService,
+    private activiesService: ActivitiesService,
   ) {}
 
   async create(dto: CreateHotelDto): Promise<Hotel> {
@@ -35,6 +37,7 @@ export class HotelService {
       .catch((error) => {
         throw new ForbiddenException(error);
       });
+    await this.activiesService.create(hotel.id);
     return hotel;
   }
 
@@ -46,6 +49,7 @@ export class HotelService {
     const hotels = await this.prisma.hotel.findMany({
       include: {
         amenities: true,
+        activities: true,
       },
     });
     if (!hotels) {
@@ -54,10 +58,19 @@ export class HotelService {
     return hotels;
   }
 
-  async findOne(id: number): Promise<Hotel> {
+  async findOne(id: number): Promise<
+    Hotel & {
+      activities: Activities;
+      amenities: Amenity;
+    }
+  > {
     const hotel = await this.prisma.hotel.findUnique({
       where: {
         id: id,
+      },
+      include: {
+        activities: true,
+        amenities: true,
       },
     });
     if (!hotel) {
@@ -90,8 +103,16 @@ export class HotelService {
   }
 
   async remove(id: number): Promise<void | Hotel> {
-    await this.findOne(id);
-    await this.amenitiesService.remove(id);
+    const hotelExists = await this.findOne(id);
+    if (!hotelExists) {
+      throw new NotFoundException('Hotel does not exists');
+    }
+    if (hotelExists.activities !== null) {
+      await this.activiesService.remove(id);
+    }
+    if (hotelExists.amenities !== null) {
+      await this.amenitiesService.remove(id);
+    }
     const removedHotel = await this.prisma.hotel
       .delete({
         where: {

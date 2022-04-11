@@ -14,7 +14,7 @@ import { HotelService } from './hotel.service';
 import { CreateHotelDto } from './dto/create-hotel.dto';
 import { ApiBody, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { Public } from 'src/common/decorators';
-import { Amenity, Hotel } from '@prisma/client';
+import { Activities, Amenity, Hotel } from '@prisma/client';
 
 @ApiTags('Hotel Routes')
 @Controller('hotel')
@@ -46,7 +46,12 @@ export class HotelController {
   @HttpCode(HttpStatus.FOUND)
   @ApiCreatedResponse({ description: 'hotel with given id recieved' })
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<Hotel> {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<
+    Hotel & {
+      activities: Activities;
+      amenities: Amenity;
+    }
+  > {
     return this.hotelService.findOne(id);
   }
 

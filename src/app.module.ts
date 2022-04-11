@@ -8,6 +8,7 @@ import { ProfileModule } from './profile/profile.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { HotelModule } from './hotel/hotel.module';
 import { AmenitiesModule } from './amenities/amenities.module';
+import { ActivitiesModule } from './activities/activities.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { AmenitiesModule } from './amenities/amenities.module';
     CloudinaryModule,
     HotelModule,
     AmenitiesModule,
+    ActivitiesModule,
   ],
   providers: [
     {
