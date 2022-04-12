@@ -9,6 +9,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { HotelModule } from './hotel/hotel.module';
 import { AmenitiesModule } from './amenities/amenities.module';
 import { ActivitiesModule } from './activities/activities.module';
+import { SingleActivityModule } from './single-activity/single-activity.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ActivitiesModule } from './activities/activities.module';
     HotelModule,
     AmenitiesModule,
     ActivitiesModule,
+    SingleActivityModule,
   ],
   providers: [
     {

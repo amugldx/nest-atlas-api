@@ -9,17 +9,52 @@ import {
   HttpCode,
   HttpStatus,
   ParseIntPipe,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { HotelService } from './hotel.service';
 import { CreateHotelDto } from './dto/create-hotel.dto';
-import { ApiBody, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiCreatedResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Public } from 'src/common/decorators';
 import { Activities, Amenity, Hotel } from '@prisma/client';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Hotel Routes')
 @Controller('hotel')
 export class HotelController {
   constructor(private readonly hotelService: HotelService) {}
+
+  @Public()
+  @Post(':id/picture')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  uploadProfile(
+    @UploadedFile() file: Express.Multer.File,
+    @Param('id', ParseIntPipe) hotelId: number,
+  ): Promise<
+    Hotel & {
+      activities: Activities;
+      amenities: Amenity;
+    }
+  > {
+    return this.hotelService.uploadPicture(file, hotelId);
+  }
 
   @Public()
   @HttpCode(HttpStatus.CREATED)

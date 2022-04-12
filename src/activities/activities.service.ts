@@ -55,6 +55,21 @@ export class ActivitiesService {
     return allActivities;
   }
 
+  async findOne(activitiesId: number): Promise<void | Activities> {
+    const activites = this.prisma.activities
+      .findUnique({
+        where: {
+          id: activitiesId,
+        },
+      })
+      .catch((error) => {
+        if (error) {
+          throw new NotFoundException('Activites with given id not found');
+        }
+      });
+    return activites;
+  }
+
   async remove(hotelId: number): Promise<void | Activities> {
     await this.getHotel(hotelId);
     const removedHotel = await this.prisma.activities

@@ -55,6 +55,8 @@ model Hotel {
   address     String  @unique
   price       Int
   featured    Boolean
+  imageUrl    String?
+  imageId     String?
 
   amenities  Amenity?
   activities Activities?
@@ -88,7 +90,8 @@ model SingleActivity {
   time        DateTime
   title       String
   description String
-  imageUrl    String
+  imageUrl    String?
+  imageId     String?
   category    ActivityCategory
 
   activites    Activities @relation(fields: [activitiesId], references: [id])

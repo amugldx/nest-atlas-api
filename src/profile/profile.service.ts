@@ -64,6 +64,7 @@ export class ProfileService {
               about: dto.about,
               location: dto.location,
               picture: null,
+              pictureId: null,
             },
           },
         },
@@ -149,7 +150,9 @@ export class ProfileService {
         pictureId: true,
       },
     });
-    await this.cloudinary.deleteImage(imageUrl.pictureId);
+    if (imageUrl.pictureId !== null) {
+      await this.cloudinary.deleteImage(imageUrl.pictureId);
+    }
     const removedProfile = await this.prisma.profile
       .delete({
         where: {

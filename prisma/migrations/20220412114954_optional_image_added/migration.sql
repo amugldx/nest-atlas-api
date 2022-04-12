@@ -1,0 +1,7 @@
+-- AlterTable
+ALTER TABLE "hotel" ALTER COLUMN "imageId" DROP NOT NULL,
+ALTER COLUMN "imageUrl" DROP NOT NULL;
+
+-- AlterTable
+ALTER TABLE "singleActivity" ALTER COLUMN "imageUrl" DROP NOT NULL,
+ALTER COLUMN "imageId" DROP NOT NULL;
