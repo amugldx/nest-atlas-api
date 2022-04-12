@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException, HttpException } from '@nestjs/common';
-import { Activities, Hotel, SingleActivity } from '@prisma/client';
+import { Activities, Hotel, Prisma, SingleActivity } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -61,6 +61,9 @@ export class ActivitiesService {
         where: {
           id: activitiesId,
         },
+        include: {
+          activity: true,
+        },
       })
       .catch((error) => {
         if (error) {
@@ -72,6 +75,7 @@ export class ActivitiesService {
 
   async remove(hotelId: number): Promise<void | Activities> {
     await this.getHotel(hotelId);
+    await this.removeAllActivities(hotelId);
     const removedHotel = await this.prisma.activities
       .delete({
         where: {
@@ -99,5 +103,27 @@ export class ActivitiesService {
         }
       });
     return hotel;
+  }
+
+  async removeAllActivities(
+    hotelId: number,
+  ): Promise<void | Prisma.BatchPayload> {
+    const activities = await this.prisma.activities.findUnique({
+      where: {
+        hotelId: hotelId,
+      },
+    });
+    const deleteActivites = await this.prisma.singleActivity
+      .deleteMany({
+        where: {
+          activitiesId: activities.id,
+        },
+      })
+      .catch((error) => {
+        if (error) {
+          throw new HttpException('Unable to delete activites', 400);
+        }
+      });
+    return deleteActivites;
   }
 }

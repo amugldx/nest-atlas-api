@@ -30,6 +30,7 @@ export class HotelController {
   constructor(private readonly hotelService: HotelService) {}
 
   @Public()
+  @HttpCode(HttpStatus.CREATED)
   @Post(':id/picture')
   @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
@@ -47,12 +48,7 @@ export class HotelController {
   uploadProfile(
     @UploadedFile() file: Express.Multer.File,
     @Param('id', ParseIntPipe) hotelId: number,
-  ): Promise<
-    Hotel & {
-      activities: Activities;
-      amenities: Amenity;
-    }
-  > {
+  ): Promise<void | Hotel> {
     return this.hotelService.uploadPicture(file, hotelId);
   }
 

@@ -10,6 +10,7 @@ import { Activities, Amenity, Hotel } from '@prisma/client';
 import { AmenitiesService } from '../amenities/amenities.service';
 import { ActivitiesService } from '../activities/activities.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { HttpException } from '@nestjs/common';
 
 @Injectable()
 export class HotelService {
@@ -23,26 +24,24 @@ export class HotelService {
   async uploadPicture(
     file: Express.Multer.File,
     hotelId: number,
-  ): Promise<
-    Hotel & {
-      activities: Activities;
-      amenities: Amenity;
-    }
-  > {
+  ): Promise<void | Hotel> {
     const picture = await this.cloudinary.uploadImage(file).catch(() => {
       throw new BadRequestException('Invalid file type');
     });
     await this.findOne(hotelId);
-    await this.prisma.hotel.update({
-      where: {
-        id: hotelId,
-      },
-      data: {
-        imageId: picture.public_id,
-        imageUrl: picture.secure_url,
-      },
-    });
-    const hotel = await this.findOne(hotelId);
+    const hotel = await this.prisma.hotel
+      .update({
+        where: {
+          id: hotelId,
+        },
+        data: {
+          imageId: picture.public_id,
+          imageUrl: picture.secure_url,
+        },
+      })
+      .catch((error) => {
+        if (error) throw new HttpException('Unable to upload picture', 400);
+      });
     return hotel;
   }
 

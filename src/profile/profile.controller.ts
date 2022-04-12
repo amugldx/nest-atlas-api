@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseIntPipe,
   Patch,
@@ -29,6 +31,7 @@ export class ProfileController {
   constructor(private profileService: ProfileService) {}
 
   @Post('picture')
+  @HttpCode(HttpStatus.CREATED)
   @UseInterceptors(FileInterceptor('file'))
   @ApiBearerAuth()
   @ApiConsumes('multipart/form-data')
@@ -46,11 +49,17 @@ export class ProfileController {
   uploadProfile(
     @UploadedFile() file: Express.Multer.File,
     @GetCurrentUserId() userId: number,
-  ): Promise<Profile> {
+  ): Promise<
+    | void
+    | (User & {
+        profile: Profile;
+      })
+  > {
     return this.profileService.uploadPicture(file, userId);
   }
 
   @Post('create')
+  @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({ description: 'Profile data added' })
   @ApiBody({ type: ProfileDto })
   @ApiBearerAuth()
@@ -67,6 +76,7 @@ export class ProfileController {
   }
 
   @Patch('update')
+  @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({ description: 'Profile data updated' })
   @ApiBody({ type: ProfileDto })
   @ApiBearerAuth()
@@ -82,14 +92,16 @@ export class ProfileController {
     return this.profileService.updateProfile(dto, userId);
   }
 
+  @Get('/me')
+  @HttpCode(HttpStatus.FOUND)
   @ApiOkResponse({ description: 'Data successfully featched' })
   @ApiBearerAuth()
-  @Get('/me')
   getProfile(@GetCurrentUserId() userId: number): Promise<Profile> {
     return this.profileService.getProfile(userId);
   }
 
   @Get('/:id')
+  @HttpCode(HttpStatus.FOUND)
   @ApiOkResponse({ description: 'Data successfully featched' })
   @ApiBearerAuth()
   getProfileById(@Param('id', ParseIntPipe) id: number): Promise<Profile> {

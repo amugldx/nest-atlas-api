@@ -19,25 +19,38 @@ export class ProfileService {
   async uploadPicture(
     file: Express.Multer.File,
     userId: number,
-  ): Promise<Profile> {
+  ): Promise<
+    | void
+    | (User & {
+        profile: Profile;
+      })
+  > {
     const picture = await this.cloudinary.uploadImage(file).catch(() => {
       throw new BadRequestException('Invalid file type');
     });
     await this.getUser(userId);
-    await this.prisma.user.update({
-      where: {
-        id: userId,
-      },
-      data: {
-        profile: {
-          update: {
-            picture: picture.secure_url,
-            pictureId: picture.public_id,
+    const profile = await this.prisma.user
+      .update({
+        where: {
+          id: userId,
+        },
+        data: {
+          profile: {
+            update: {
+              picture: picture.secure_url,
+              pictureId: picture.public_id,
+            },
           },
         },
-      },
-    });
-    const profile = await this.getProfile(userId);
+        include: {
+          profile: true,
+        },
+      })
+      .catch((error) => {
+        if (error) {
+          throw new HttpException('Unable to upload picture', 400);
+        }
+      });
     return profile;
   }
 
