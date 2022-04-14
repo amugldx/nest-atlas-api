@@ -20,7 +20,8 @@ model User {
   hash     String
   hashedRt String?
 
-  profile Profile?
+  profile  Profile?
+  bookmark Bookmark[]
 
   @@map("users")
 }
@@ -37,7 +38,7 @@ model Profile {
   about     String
   location  String
 
-  user   User @relation(fields: [userId], references: [id])
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int  @unique
 
   @@map("profile")
@@ -60,6 +61,7 @@ model Hotel {
 
   amenities  Amenity?
   activities Activities?
+  bookmark   Bookmark[]
 
   @@map("hotel")
 }
@@ -76,7 +78,7 @@ model Amenity {
   parkingSpot    Boolean
   nightClub      Boolean
 
-  hotel   Hotel @relation(fields: [hotelId], references: [id])
+  hotel   Hotel @relation(fields: [hotelId], references: [id], onDelete: Cascade)
   hotelId Int   @unique
 
   @@map("amenities")
@@ -94,7 +96,7 @@ model SingleActivity {
   imageId     String?
   category    ActivityCategory
 
-  activites    Activities @relation(fields: [activitiesId], references: [id])
+  activites    Activities @relation(fields: [activitiesId], references: [id], onDelete: Cascade)
   activitiesId Int
 
   @@map("singleActivity")
@@ -106,10 +108,25 @@ model Activities {
   updatedAt DateTime @updatedAt
 
   activity SingleActivity[]
-  hotel    Hotel            @relation(fields: [hotelId], references: [id])
+  hotel    Hotel            @relation(fields: [hotelId], references: [id], onDelete: Cascade)
   hotelId  Int              @unique
 
   @@map("activites")
+}
+
+model Bookmark {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bookmark Boolean
+
+  User    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId  Int
+  Hotel   Hotel @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  hotelId Int
+
+  @@map("bookmarks")
 }
 
 enum ActivityCategory {

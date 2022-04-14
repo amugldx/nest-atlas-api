@@ -20,10 +20,10 @@ import {
   ApiBody,
   ApiBearerAuth,
   ApiTags,
-  ApiOkResponse,
   ApiConsumes,
 } from '@nestjs/swagger';
-import { Profile, User } from '@prisma/client';
+import { Profile } from '@prisma/client';
+import { ApiFoundResponse } from '@nestjs/swagger';
 
 @ApiTags('Profile Routes')
 @Controller('profile')
@@ -32,6 +32,7 @@ export class ProfileController {
 
   @Post('picture')
   @HttpCode(HttpStatus.CREATED)
+  @ApiCreatedResponse({ description: 'Picture Uploaded' })
   @UseInterceptors(FileInterceptor('file'))
   @ApiBearerAuth()
   @ApiConsumes('multipart/form-data')
@@ -49,12 +50,7 @@ export class ProfileController {
   uploadProfile(
     @UploadedFile() file: Express.Multer.File,
     @GetCurrentUserId() userId: number,
-  ): Promise<
-    | void
-    | (User & {
-        profile: Profile;
-      })
-  > {
+  ): Promise<Profile> {
     return this.profileService.uploadPicture(file, userId);
   }
 
@@ -66,12 +62,7 @@ export class ProfileController {
   createProfile(
     @Body() dto: ProfileDto,
     @GetCurrentUserId() userId: number,
-  ): Promise<
-    | void
-    | (User & {
-        profile: Profile;
-      })
-  > {
+  ): Promise<Profile> {
     return this.profileService.createProfile(dto, userId);
   }
 
@@ -83,18 +74,13 @@ export class ProfileController {
   updateProfile(
     @Body() dto: ProfileDto,
     @GetCurrentUserId() userId: number,
-  ): Promise<
-    | void
-    | (User & {
-        profile: Profile;
-      })
-  > {
+  ): Promise<Profile> {
     return this.profileService.updateProfile(dto, userId);
   }
 
   @Get('/me')
   @HttpCode(HttpStatus.FOUND)
-  @ApiOkResponse({ description: 'Data successfully featched' })
+  @ApiFoundResponse({ description: 'Data successfully featched' })
   @ApiBearerAuth()
   getProfile(@GetCurrentUserId() userId: number): Promise<Profile> {
     return this.profileService.getProfile(userId);
@@ -102,7 +88,7 @@ export class ProfileController {
 
   @Get('/:id')
   @HttpCode(HttpStatus.FOUND)
-  @ApiOkResponse({ description: 'Data successfully featched' })
+  @ApiFoundResponse({ description: 'Data successfully featched' })
   @ApiBearerAuth()
   getProfileById(@Param('id', ParseIntPipe) id: number): Promise<Profile> {
     return this.profileService.getProfile(id);

@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, HttpException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
@@ -113,24 +113,31 @@ export class AuthService {
   }
 
   async deleteUser(userId: number) {
-    await this.profileService.deleteProfile(userId);
-    const deletedUser = await this.prisma.user
+    const profile = await this.findUser(userId);
+    if (profile) {
+      await this.profileService.deleteProfile(userId);
+    }
+    await this.prisma.user
       .delete({
         where: {
           id: userId,
         },
-        select: {
-          hash: false,
-          hashedRt: false,
-          email: false,
-        },
       })
       .catch((error) => {
         if (error) {
-          throw new ForbiddenException('Unable to delete the user');
+          throw new ForbiddenException('Unable to delete user');
         }
       });
-    return deletedUser;
+    return 'user deleted';
+  }
+
+  async findUser(userId: number) {
+    const profile = await this.prisma.profile.findUnique({
+      where: {
+        userId,
+      },
+    });
+    return profile;
   }
 
   async updateRtHash(userId: number, rt: string): Promise<void> {

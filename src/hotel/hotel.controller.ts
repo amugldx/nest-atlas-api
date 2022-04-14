@@ -18,11 +18,13 @@ import {
   ApiBody,
   ApiConsumes,
   ApiCreatedResponse,
+  ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { Public } from 'src/common/decorators';
-import { Activities, Amenity, Hotel } from '@prisma/client';
+import { Activities, Amenity, Bookmark, Hotel } from '@prisma/client';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiFoundResponse } from '@nestjs/swagger';
 
 @ApiTags('Hotel Routes')
 @Controller('hotel')
@@ -31,6 +33,7 @@ export class HotelController {
 
   @Public()
   @HttpCode(HttpStatus.CREATED)
+  @ApiCreatedResponse({ description: 'Picture Uploaded' })
   @Post(':id/picture')
   @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
@@ -63,7 +66,7 @@ export class HotelController {
 
   @Public()
   @HttpCode(HttpStatus.FOUND)
-  @ApiCreatedResponse({ description: 'All hotels recieved' })
+  @ApiFoundResponse({ description: 'All hotels recieved' })
   @Get()
   findAll(): Promise<
     (Hotel & {
@@ -75,12 +78,13 @@ export class HotelController {
 
   @Public()
   @HttpCode(HttpStatus.FOUND)
-  @ApiCreatedResponse({ description: 'hotel with given id recieved' })
+  @ApiFoundResponse({ description: 'hotel with given id recieved' })
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number): Promise<
     Hotel & {
       activities: Activities;
       amenities: Amenity;
+      bookmark: Bookmark[];
     }
   > {
     return this.hotelService.findOne(id);
@@ -100,9 +104,9 @@ export class HotelController {
 
   @Public()
   @HttpCode(HttpStatus.OK)
-  @ApiCreatedResponse({ description: 'hotel with given id deleted' })
+  @ApiOkResponse({ description: 'hotel with given id deleted' })
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number): Promise<void | Hotel> {
+  remove(@Param('id', ParseIntPipe) id: number): Promise<boolean> {
     return this.hotelService.remove(id);
   }
 }

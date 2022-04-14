@@ -6,8 +6,8 @@ import {
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { ProfileDto } from './dtos/profile.dto';
 import { PrismaService } from '../prisma/prisma.service';
-import { Profile, User } from '@prisma/client';
-import { HttpException, ForbiddenException } from '@nestjs/common';
+import { Profile } from '@prisma/client';
+import { HttpException } from '@nestjs/common';
 
 @Injectable()
 export class ProfileService {
@@ -19,16 +19,15 @@ export class ProfileService {
   async uploadPicture(
     file: Express.Multer.File,
     userId: number,
-  ): Promise<
-    | void
-    | (User & {
-        profile: Profile;
-      })
-  > {
+  ): Promise<Profile> {
+    await this.getUser(userId);
+    const imageExists = await this.getProfile(userId);
+    if (imageExists.pictureId !== null) {
+      await this.cloudinary.deleteImage(imageExists.pictureId);
+    }
     const picture = await this.cloudinary.uploadImage(file).catch(() => {
       throw new BadRequestException('Invalid file type');
     });
-    await this.getUser(userId);
     const profile = await this.prisma.user
       .update({
         where: {
@@ -51,18 +50,12 @@ export class ProfileService {
           throw new HttpException('Unable to upload picture', 400);
         }
       });
-    return profile;
+    if (profile) {
+      return profile.profile;
+    }
   }
 
-  async createProfile(
-    dto: ProfileDto,
-    userId: number,
-  ): Promise<
-    | void
-    | (User & {
-        profile: Profile;
-      })
-  > {
+  async createProfile(dto: ProfileDto, userId: number): Promise<Profile> {
     await this.getUser(userId);
     const userWithProfile = await this.prisma.user
       .update({
@@ -90,18 +83,12 @@ export class ProfileService {
           throw new HttpException('Cant create already existing profile', 400);
         }
       });
-    return userWithProfile;
+    if (userWithProfile) {
+      return userWithProfile.profile;
+    }
   }
 
-  async updateProfile(
-    dto: ProfileDto,
-    userId: number,
-  ): Promise<
-    | void
-    | (User & {
-        profile: Profile;
-      })
-  > {
+  async updateProfile(dto: ProfileDto, userId: number): Promise<Profile> {
     await this.getUser(userId);
     const userWithProfile = await this.prisma.user
       .update({
@@ -127,7 +114,9 @@ export class ProfileService {
           throw new HttpException(error, 400);
         }
       });
-    return userWithProfile;
+    if (userWithProfile) {
+      return userWithProfile.profile;
+    }
   }
   async getProfile(userId: number): Promise<Profile> {
     const profile = await this.prisma.profile.findUnique({
@@ -159,24 +148,9 @@ export class ProfileService {
       where: {
         userId: userId,
       },
-      select: {
-        pictureId: true,
-      },
     });
     if (imageUrl.pictureId !== null) {
       await this.cloudinary.deleteImage(imageUrl.pictureId);
     }
-    const removedProfile = await this.prisma.profile
-      .delete({
-        where: {
-          userId: userId,
-        },
-      })
-      .catch((error) => {
-        if (error) {
-          throw new ForbiddenException('Unable to delete the profile');
-        }
-      });
-    return removedProfile;
   }
 }

@@ -85,22 +85,6 @@ export class AmenitiesService {
     return updatedHotelWithAminity;
   }
 
-  async remove(id: number): Promise<void | Amenity> {
-    await this.getHotel(id);
-    const removedAminity = await this.prisma.amenity
-      .delete({
-        where: {
-          hotelId: id,
-        },
-      })
-      .catch((error) => {
-        if (error) {
-          throw new HttpException(error, 400);
-        }
-      });
-    return removedAminity;
-  }
-
   async getHotel(hotelId: number) {
     const hotel = await this.prisma.hotel.findUnique({
       where: {

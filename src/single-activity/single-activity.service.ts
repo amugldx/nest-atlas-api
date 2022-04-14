@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { CreateSingleActivityDto } from './dto/create-single-activity.dto';
 import { PrismaService } from '../prisma/prisma.service';
-import { ActivitiesService } from '../activities/activities.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { Activities, SingleActivity } from '@prisma/client';
 
@@ -14,7 +13,6 @@ import { Activities, SingleActivity } from '@prisma/client';
 export class SingleActivityService {
   constructor(
     private prisma: PrismaService,
-    private activities: ActivitiesService,
     private cloudinary: CloudinaryService,
   ) {}
 
@@ -22,10 +20,14 @@ export class SingleActivityService {
     file: Express.Multer.File,
     activityId: number,
   ): Promise<void | SingleActivity> {
+    await this.findOne(activityId);
+    const imageExists = await this.findOne(activityId);
+    if (imageExists && imageExists.imageId) {
+      await this.cloudinary.deleteImage(imageExists.imageId);
+    }
     const picture = await this.cloudinary.uploadImage(file).catch(() => {
       throw new BadRequestException('Invalid file type');
     });
-    await this.findOne(activityId);
     const activity = await this.prisma.singleActivity
       .update({
         where: {
@@ -51,7 +53,17 @@ export class SingleActivityService {
         activity: SingleActivity[];
       })
   > {
-    await this.activities.findOne(activitiesId);
+    await this.prisma.activities
+      .findUnique({
+        where: {
+          id: activitiesId,
+        },
+      })
+      .catch((error) => {
+        if (error) {
+          throw new NotFoundException('Activities not found');
+        }
+      });
     const singleActivity = await this.prisma.activities
       .update({
         where: {
@@ -64,6 +76,8 @@ export class SingleActivityService {
               description: dto.description,
               category: dto.category,
               title: dto.title,
+              imageId: null,
+              imageUrl: null,
             },
           },
         },
@@ -127,9 +141,22 @@ export class SingleActivityService {
     return updatedActivity;
   }
 
+  async removeCascade(imageId) {
+    await this.cloudinary.deleteImage(imageId);
+    return true;
+  }
+
   async remove(activityId: number) {
     await this.findOne(activityId);
-    const removedActivity = await this.prisma.singleActivity
+    const imageUrl = await this.prisma.singleActivity.findUnique({
+      where: {
+        id: activityId,
+      },
+    });
+    if (imageUrl && imageUrl.imageId) {
+      await this.cloudinary.deleteImage(imageUrl.imageId);
+    }
+    await this.prisma.singleActivity
       .delete({
         where: {
           id: activityId,
@@ -140,6 +167,6 @@ export class SingleActivityService {
           throw new HttpException('Unable to delete given activity', 400);
         }
       });
-    return removedActivity;
+    return true;
   }
 }

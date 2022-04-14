@@ -9,5 +9,6 @@ import { CloudinaryModule } from '../cloudinary/cloudinary.module';
   imports: [AmenitiesModule, ActivitiesModule, CloudinaryModule],
   controllers: [HotelController],
   providers: [HotelService],
+  exports: [HotelService],
 })
 export class HotelModule {}

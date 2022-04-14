@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { CreateHotelDto } from './dto/create-hotel.dto';
 import { PrismaService } from '../prisma/prisma.service';
-import { Activities, Amenity, Hotel } from '@prisma/client';
+import { Activities, Amenity, Bookmark, Hotel } from '@prisma/client';
 import { AmenitiesService } from '../amenities/amenities.service';
 import { ActivitiesService } from '../activities/activities.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
@@ -25,10 +25,14 @@ export class HotelService {
     file: Express.Multer.File,
     hotelId: number,
   ): Promise<void | Hotel> {
+    await this.findOne(hotelId);
+    const imageExists = await this.findOne(hotelId);
+    if (imageExists.imageId !== null) {
+      await this.cloudinary.deleteImage(imageExists.imageId);
+    }
     const picture = await this.cloudinary.uploadImage(file).catch(() => {
       throw new BadRequestException('Invalid file type');
     });
-    await this.findOne(hotelId);
     const hotel = await this.prisma.hotel
       .update({
         where: {
@@ -80,6 +84,7 @@ export class HotelService {
       include: {
         amenities: true,
         activities: true,
+        bookmark: true,
       },
     });
     if (!hotels) {
@@ -92,6 +97,7 @@ export class HotelService {
     Hotel & {
       activities: Activities;
       amenities: Amenity;
+      bookmark: Bookmark[];
     }
   > {
     const hotel = await this.prisma.hotel.findUnique({
@@ -101,6 +107,7 @@ export class HotelService {
       include: {
         activities: true,
         amenities: true,
+        bookmark: true,
       },
     });
     if (!hotel) {
@@ -132,21 +139,16 @@ export class HotelService {
     return updatedHotel;
   }
 
-  async remove(id: number): Promise<void | Hotel> {
+  async remove(id: number): Promise<boolean> {
     const hotelExists = await this.findOne(id);
     if (!hotelExists) {
       throw new NotFoundException('Hotel does not exists');
     }
-    if (hotelExists.activities !== null) {
-      await this.activiesService.remove(id);
-    }
-    if (hotelExists.amenities !== null) {
-      await this.amenitiesService.remove(id);
-    }
+    await this.activiesService.removeAllActivities(id);
     if (hotelExists.imageId !== null) {
       await this.cloudinary.deleteImage(hotelExists.imageId);
     }
-    const removedHotel = await this.prisma.hotel
+    await this.prisma.hotel
       .delete({
         where: {
           id: id,
@@ -157,6 +159,6 @@ export class HotelService {
           throw new NotFoundException('Hotel does not exists');
         }
       });
-    return removedHotel;
+    return true;
   }
 }

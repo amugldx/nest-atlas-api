@@ -18,11 +18,13 @@ import {
   ApiBody,
   ApiConsumes,
   ApiCreatedResponse,
+  ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { Public } from 'src/common/decorators';
 import { Activities, SingleActivity } from '@prisma/client';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiFoundResponse } from '@nestjs/swagger';
 
 @ApiTags('Single Activity routes')
 @Controller('single-activity')
@@ -31,6 +33,7 @@ export class SingleActivityController {
 
   @Public()
   @HttpCode(HttpStatus.CREATED)
+  @ApiCreatedResponse({ description: 'Picture Uploaded' })
   @Post(':id/picture')
   @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
@@ -71,7 +74,7 @@ export class SingleActivityController {
 
   @Public()
   @HttpCode(HttpStatus.FOUND)
-  @ApiCreatedResponse({ description: 'All activities found' })
+  @ApiFoundResponse({ description: 'All activities found' })
   @Get()
   findAll() {
     return this.singleActivityService.findAll();
@@ -79,7 +82,7 @@ export class SingleActivityController {
 
   @Public()
   @HttpCode(HttpStatus.FOUND)
-  @ApiCreatedResponse({ description: 'Activity Found' })
+  @ApiFoundResponse({ description: 'Activity Found' })
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.singleActivityService.findOne(+id);
@@ -99,7 +102,7 @@ export class SingleActivityController {
 
   @Public()
   @HttpCode(HttpStatus.OK)
-  @ApiCreatedResponse({ description: 'Activity deleted' })
+  @ApiOkResponse({ description: 'Activity deleted' })
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.singleActivityService.remove(+id);

@@ -1,10 +1,14 @@
 import { Injectable, NotFoundException, HttpException } from '@nestjs/common';
-import { Activities, Hotel, Prisma, SingleActivity } from '@prisma/client';
+import { Activities, Hotel, SingleActivity } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { SingleActivityService } from '../single-activity/single-activity.service';
 
 @Injectable()
 export class ActivitiesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private singleActivity: SingleActivityService,
+  ) {}
 
   async create(hotelId: number): Promise<
     | void
@@ -73,23 +77,6 @@ export class ActivitiesService {
     return activites;
   }
 
-  async remove(hotelId: number): Promise<void | Activities> {
-    await this.getHotel(hotelId);
-    await this.removeAllActivities(hotelId);
-    const removedHotel = await this.prisma.activities
-      .delete({
-        where: {
-          hotelId: hotelId,
-        },
-      })
-      .catch((error) => {
-        if (error) {
-          throw new NotFoundException('Activities does not exists');
-        }
-      });
-    return removedHotel;
-  }
-
   async getHotel(hotelId: number): Promise<void | Hotel> {
     const hotel = await this.prisma.hotel
       .findUnique({
@@ -105,25 +92,17 @@ export class ActivitiesService {
     return hotel;
   }
 
-  async removeAllActivities(
-    hotelId: number,
-  ): Promise<void | Prisma.BatchPayload> {
+  async removeAllActivities(hotelId: number) {
     const activities = await this.prisma.activities.findUnique({
       where: {
         hotelId: hotelId,
       },
+      include: {
+        activity: true,
+      },
     });
-    const deleteActivites = await this.prisma.singleActivity
-      .deleteMany({
-        where: {
-          activitiesId: activities.id,
-        },
-      })
-      .catch((error) => {
-        if (error) {
-          throw new HttpException('Unable to delete activites', 400);
-        }
-      });
-    return deleteActivites;
+    activities.activity.forEach(async (activity) => {
+      await this.singleActivity.removeCascade(activity.imageId);
+    });
   }
 }
