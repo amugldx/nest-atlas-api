@@ -49,7 +49,7 @@ export class BookmarksController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ description: 'Bookmark recieved' })
+  @ApiOkResponse({ description: 'Bookmark deleted' })
   @ApiBearerAuth()
   remove(@Param('id', ParseIntPipe) bookmarkId: number) {
     return this.bookmarksService.remove(bookmarkId);

@@ -11,6 +11,8 @@ import { AmenitiesModule } from './amenities/amenities.module';
 import { ActivitiesModule } from './activities/activities.module';
 import { SingleActivityModule } from './single-activity/single-activity.module';
 import { BookmarksModule } from './bookmarks/bookmarks.module';
+import { BookingModule } from './booking/booking.module';
+import { ReviewModule } from './review/review.module';
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { BookmarksModule } from './bookmarks/bookmarks.module';
     ActivitiesModule,
     SingleActivityModule,
     BookmarksModule,
+    BookingModule,
+    ReviewModule,
   ],
   providers: [
     {
