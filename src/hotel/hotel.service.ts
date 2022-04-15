@@ -7,7 +7,6 @@ import {
 import { CreateHotelDto } from './dto/create-hotel.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { Activities, Amenity, Bookmark, Hotel } from '@prisma/client';
-import { AmenitiesService } from '../amenities/amenities.service';
 import { ActivitiesService } from '../activities/activities.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { HttpException } from '@nestjs/common';
@@ -17,7 +16,6 @@ export class HotelService {
   constructor(
     private prisma: PrismaService,
     private cloudinary: CloudinaryService,
-    private amenitiesService: AmenitiesService,
     private activiesService: ActivitiesService,
   ) {}
 

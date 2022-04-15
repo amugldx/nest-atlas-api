@@ -19,9 +19,12 @@ model User {
   username String  @unique
   hash     String
   hashedRt String?
+  role     Role    @default(user)
 
   profile  Profile?
   bookmark Bookmark[]
+  Booking  Booking?
+  Review   Review?
 
   @@map("users")
 }
@@ -62,6 +65,9 @@ model Hotel {
   amenities  Amenity?
   activities Activities?
   bookmark   Bookmark[]
+  bookingId  Int?
+  Booking    Booking?
+  Review     Review?
 
   @@map("hotel")
 }
@@ -127,6 +133,53 @@ model Bookmark {
   hotelId Int
 
   @@map("bookmarks")
+}
+
+model Booking {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  startingDate DateTime
+  endingDate   DateTime
+  rooms        Int
+
+  hotelId Int   @unique
+  hotel   Hotel @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  userId  Int   @unique
+  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("bookings")
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  message String
+  time    DateTime
+  rating  Rating
+
+  hotelId Int   @unique
+  hotel   Hotel @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  userId  Int   @unique
+  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("reviews")
+}
+
+enum Rating {
+  one
+  two
+  three
+  four
+  five
+}
+
+enum Role {
+  user
+  admin
 }
 
 enum ActivityCategory {

@@ -2,7 +2,7 @@ import { Injectable, HttpException, NotFoundException } from '@nestjs/common';
 import { CreateBookmarkDto } from './dto/create-bookmark.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { HotelService } from '../hotel/hotel.service';
-import { Bookmark, Hotel, User } from '@prisma/client';
+import { Bookmark } from '@prisma/client';
 
 @Injectable()
 export class BookmarksService {
