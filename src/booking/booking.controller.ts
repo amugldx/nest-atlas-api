@@ -40,7 +40,6 @@ export class BookingController {
     return this.bookingService.create(dto, userId, hotelId);
   }
 
-  @Get()
   @HttpCode(HttpStatus.FOUND)
   @ApiFoundResponse({ description: 'Bookings recieved' })
   @ApiBearerAuth()
@@ -53,28 +52,28 @@ export class BookingController {
   @ApiFoundResponse({ description: 'Booking recieved' })
   @ApiBearerAuth()
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.bookingService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.bookingService.findOne(id);
   }
 
   @Patch(':hotelId')
   @HttpCode(HttpStatus.CREATED)
-  @ApiCreatedResponse({ description: 'Booking created' })
+  @ApiCreatedResponse({ description: 'Booking updated' })
   @ApiBody({ type: CreateBookingDto })
   @ApiBearerAuth()
   update(
     @Param('hotelId') hotelId: number,
-    @Body() dto: CreateBookingDto,
+    @Body() dto: Partial<CreateBookingDto>,
     @GetCurrentUserId() userId: number,
   ) {
     return this.bookingService.update(dto, userId, hotelId);
   }
 
-  @Delete(':id')
+  @Delete(':bookingId')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ description: 'Booking deleted' })
   @ApiBearerAuth()
-  remove(@Param('id') id: string) {
-    return this.bookingService.remove(+id);
+  remove(@Param('bookingId', ParseIntPipe) bookingId: number) {
+    return this.bookingService.remove(bookingId);
   }
 }

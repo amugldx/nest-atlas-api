@@ -7,7 +7,7 @@ export class BookingService {
   constructor(private prisma: PrismaService) {}
 
   async create(dto: CreateBookingDto, userId: number, hotelId: number) {
-    const booking = await this.prisma.hotel
+    const hotel = await this.prisma.hotel
       .update({
         where: {
           id: hotelId,
@@ -22,13 +22,18 @@ export class BookingService {
             },
           },
         },
+        include: {
+          Booking: true,
+        },
       })
       .catch((error) => {
         if (error) {
           throw new HttpException('Unable to create booking', 400);
         }
       });
-    return booking;
+    if (hotel) {
+      return hotel.Booking;
+    }
   }
 
   async findAll(userId: number) {
@@ -62,16 +67,22 @@ export class BookingService {
     userId: number,
     hotelId: number,
   ) {
-    const booking = await this.prisma.booking
+    const booking = await this.prisma.hotel
       .update({
         where: {
-          userId,
-          hotelId,
+          id: hotelId,
         },
         data: {
-          startingDate: dto.startingDate,
-          endingDate: dto.endingDate,
-          rooms: dto.rooms,
+          Booking: {
+            update: {
+              startingDate: dto.startingDate,
+              endingDate: dto.endingDate,
+              rooms: dto.rooms,
+            },
+          },
+        },
+        include: {
+          Booking: true,
         },
       })
       .catch((error) => {
@@ -79,7 +90,9 @@ export class BookingService {
           throw new HttpException('Unable to update booking', 400);
         }
       });
-    return booking;
+    if (booking) {
+      return booking.Booking;
+    }
   }
 
   async remove(bookingId: number) {
