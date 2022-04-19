@@ -137,6 +137,39 @@ export class HotelService {
     return updatedHotel;
   }
 
+  async findHotelWithLocation(location: string): Promise<void | Hotel[]> {
+    const hotels = await this.prisma.hotel
+      .findMany({
+        where: {
+          location,
+        },
+      })
+      .catch((error) => {
+        if (error) {
+          throw new NotFoundException(
+            'Unable to find hotels with given location',
+          );
+        }
+      });
+
+    return hotels;
+  }
+
+  async findHotelFeatured(): Promise<void | Hotel[]> {
+    const hotels = await this.prisma.hotel
+      .findMany({
+        where: {
+          featured: true,
+        },
+      })
+      .catch((error) => {
+        if (error) {
+          throw new NotFoundException('Unable to find featured hotels');
+        }
+      });
+    return hotels;
+  }
+
   async remove(id: number): Promise<boolean> {
     const hotelExists = await this.findOne(id);
     if (!hotelExists) {

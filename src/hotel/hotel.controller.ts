@@ -11,22 +11,26 @@ import {
   ParseIntPipe,
   UploadedFile,
   UseInterceptors,
+  UseGuards,
 } from '@nestjs/common';
 import { HotelService } from './hotel.service';
 import { CreateHotelDto } from './dto/create-hotel.dto';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiConsumes,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Public } from 'src/common/decorators';
-import { Activities, Amenity, Bookmark, Hotel } from '@prisma/client';
+import { Public, Roles } from 'src/common/decorators';
+import { Activities, Amenity, Bookmark, Hotel, Role } from '@prisma/client';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiFoundResponse } from '@nestjs/swagger';
+import { AdminGuard } from 'src/common/guards';
 
 @ApiTags('Hotel Routes')
+@UseGuards(AdminGuard)
 @Controller('hotel')
 export class HotelController {
   constructor(private readonly hotelService: HotelService) {}
@@ -55,9 +59,10 @@ export class HotelController {
     return this.hotelService.uploadPicture(file, hotelId);
   }
 
-  @Public()
+  @Roles(Role.admin)
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({ description: 'Hotel Created' })
+  @ApiBearerAuth()
   @ApiBody({ type: CreateHotelDto })
   @Post()
   create(@Body() dto: CreateHotelDto): Promise<Hotel> {
@@ -108,5 +113,23 @@ export class HotelController {
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number): Promise<boolean> {
     return this.hotelService.remove(id);
+  }
+
+  @Public()
+  @HttpCode(HttpStatus.FOUND)
+  @ApiFoundResponse({ description: 'hotel with given location recieved' })
+  @Get(':location')
+  findHotelWithLocation(
+    @Param('location') location: string,
+  ): Promise<void | Hotel[]> {
+    return this.hotelService.findHotelWithLocation(location);
+  }
+
+  @Public()
+  @HttpCode(HttpStatus.FOUND)
+  @ApiFoundResponse({ description: 'Featured hotels recieved' })
+  @Get('featured')
+  findHotelFeatured(): Promise<void | Hotel[]> {
+    return this.hotelService.findHotelFeatured();
   }
 }
