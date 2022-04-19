@@ -23,7 +23,7 @@ import {
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Public, Roles } from 'src/common/decorators';
+import { Roles } from 'src/common/decorators';
 import { Activities, Role, SingleActivity } from '@prisma/client';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiFoundResponse } from '@nestjs/swagger';

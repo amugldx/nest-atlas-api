@@ -7,6 +7,7 @@ import {
   ParseIntPipe,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { AmenitiesService } from './amenities.service';
 import { CreateAmenityDto } from './dto/create-amenity.dto';
@@ -16,11 +17,12 @@ import {
   ApiCreatedResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Public } from 'src/common/decorators';
 import { Hotel, Amenity, Role } from '@prisma/client';
 import { Roles } from '../common/decorators/roles.decorator';
+import { AdminGuard } from '../common/guards/roles.guard';
 
 @ApiTags('Amnities Routes')
+@UseGuards(AdminGuard)
 @Controller('amenities')
 export class AmenitiesController {
   constructor(private readonly amenitiesService: AmenitiesService) {}

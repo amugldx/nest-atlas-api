@@ -15,7 +15,6 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { User } from '@prisma/client';
 import {
   GetCurrentUser,
   GetCurrentUserId,
