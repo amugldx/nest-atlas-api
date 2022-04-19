@@ -6,9 +6,8 @@ import {
   Param,
   ParseIntPipe,
 } from '@nestjs/common';
-import { Public } from 'src/common/decorators';
 import { ActivitiesService } from './activities.service';
-import { ApiFoundResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiFoundResponse, ApiTags } from '@nestjs/swagger';
 import { Activities, SingleActivity } from '@prisma/client';
 
 @ApiTags('Activities Routes')
@@ -16,9 +15,9 @@ import { Activities, SingleActivity } from '@prisma/client';
 export class ActivitiesController {
   constructor(private readonly activitiesService: ActivitiesService) {}
 
-  @Public()
   @HttpCode(HttpStatus.FOUND)
   @ApiFoundResponse({ description: 'All activities recieved' })
+  @ApiBearerAuth()
   @Get()
   findAll(): Promise<
     | void
@@ -29,9 +28,9 @@ export class ActivitiesController {
     return this.activitiesService.findAll();
   }
 
-  @Public()
   @HttpCode(HttpStatus.FOUND)
   @ApiFoundResponse({ description: 'Single activity recieved' })
+  @ApiBearerAuth()
   @Get(':id')
   findOne(
     @Param('id', ParseIntPipe) activitiesId: number,

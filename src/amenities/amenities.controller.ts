@@ -10,18 +10,25 @@ import {
 } from '@nestjs/common';
 import { AmenitiesService } from './amenities.service';
 import { CreateAmenityDto } from './dto/create-amenity.dto';
-import { ApiBody, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiCreatedResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Public } from 'src/common/decorators';
-import { Hotel, Amenity } from '@prisma/client';
+import { Hotel, Amenity, Role } from '@prisma/client';
+import { Roles } from '../common/decorators/roles.decorator';
 
 @ApiTags('Amnities Routes')
 @Controller('amenities')
 export class AmenitiesController {
   constructor(private readonly amenitiesService: AmenitiesService) {}
 
-  @Public()
+  @Roles(Role.admin)
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({ description: 'Amenity Created' })
+  @ApiBearerAuth()
   @ApiBody({
     type: CreateAmenityDto,
     description: 'Recieves hotel id as id paramerter',
@@ -39,9 +46,10 @@ export class AmenitiesController {
     return this.amenitiesService.create(dto, hotelId);
   }
 
-  @Public()
+  @Roles(Role.admin)
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({ description: 'Amenity Updated' })
+  @ApiBearerAuth()
   @ApiBody({
     type: CreateAmenityDto,
     description: 'Recieves hotel id as parameter',

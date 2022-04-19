@@ -81,11 +81,11 @@ export class AuthController {
     return this.authService.logout(userId);
   }
 
-  @Public()
-  @UseGuards(RtGuard)
   @Post('refresh')
+  @UseGuards(RtGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ description: 'New tokens assigned' })
+  @ApiBearerAuth()
   refreshTokens(
     @GetCurrentUserId() userId: number,
     @GetCurrentUser('refreshToken') refreshToken: string,

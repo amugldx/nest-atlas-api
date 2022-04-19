@@ -23,7 +23,7 @@ import {
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Public, Roles } from 'src/common/decorators';
+import { Roles } from 'src/common/decorators';
 import { Activities, Amenity, Bookmark, Hotel, Role } from '@prisma/client';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiFoundResponse } from '@nestjs/swagger';
@@ -35,12 +35,13 @@ import { AdminGuard } from 'src/common/guards';
 export class HotelController {
   constructor(private readonly hotelService: HotelService) {}
 
-  @Public()
+  @Roles(Role.admin)
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({ description: 'Picture Uploaded' })
   @Post(':id/picture')
   @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
+  @ApiBearerAuth()
   @ApiBody({
     schema: {
       type: 'object',
@@ -69,9 +70,9 @@ export class HotelController {
     return this.hotelService.create(dto);
   }
 
-  @Public()
   @HttpCode(HttpStatus.FOUND)
   @ApiFoundResponse({ description: 'All hotels recieved' })
+  @ApiBearerAuth()
   @Get()
   findAll(): Promise<
     (Hotel & {
@@ -81,9 +82,9 @@ export class HotelController {
     return this.hotelService.findAll();
   }
 
-  @Public()
   @HttpCode(HttpStatus.FOUND)
   @ApiFoundResponse({ description: 'hotel with given id recieved' })
+  @ApiBearerAuth()
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number): Promise<
     Hotel & {
@@ -95,10 +96,11 @@ export class HotelController {
     return this.hotelService.findOne(id);
   }
 
-  @Public()
+  @Roles(Role.admin)
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({ description: 'hotel with given id updated' })
   @ApiBody({ type: CreateHotelDto })
+  @ApiBearerAuth()
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -107,17 +109,18 @@ export class HotelController {
     return this.hotelService.update(id, dto);
   }
 
-  @Public()
+  @Roles(Role.admin)
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ description: 'hotel with given id deleted' })
+  @ApiBearerAuth()
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number): Promise<boolean> {
     return this.hotelService.remove(id);
   }
 
-  @Public()
   @HttpCode(HttpStatus.FOUND)
   @ApiFoundResponse({ description: 'hotel with given location recieved' })
+  @ApiBearerAuth()
   @Get(':location')
   findHotelWithLocation(
     @Param('location') location: string,
@@ -125,9 +128,9 @@ export class HotelController {
     return this.hotelService.findHotelWithLocation(location);
   }
 
-  @Public()
   @HttpCode(HttpStatus.FOUND)
   @ApiFoundResponse({ description: 'Featured hotels recieved' })
+  @ApiBearerAuth()
   @Get('featured')
   findHotelFeatured(): Promise<void | Hotel[]> {
     return this.hotelService.findHotelFeatured();

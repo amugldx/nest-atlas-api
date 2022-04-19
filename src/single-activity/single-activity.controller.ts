@@ -11,32 +11,37 @@ import {
   UseInterceptors,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { SingleActivityService } from './single-activity.service';
 import { CreateSingleActivityDto } from './dto/create-single-activity.dto';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiConsumes,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Public } from 'src/common/decorators';
-import { Activities, SingleActivity } from '@prisma/client';
+import { Public, Roles } from 'src/common/decorators';
+import { Activities, Role, SingleActivity } from '@prisma/client';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiFoundResponse } from '@nestjs/swagger';
+import { AdminGuard } from '../common/guards/roles.guard';
 
 @ApiTags('Single Activity routes')
+@UseGuards(AdminGuard)
 @Controller('single-activity')
 export class SingleActivityController {
   constructor(private readonly singleActivityService: SingleActivityService) {}
 
-  @Public()
+  @Roles(Role.admin)
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({ description: 'Picture Uploaded' })
   @Post(':id/picture')
   @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
+  @ApiBearerAuth()
   @ApiBody({
     schema: {
       type: 'object',
@@ -55,10 +60,11 @@ export class SingleActivityController {
     return this.singleActivityService.uploadPicture(file, activityId);
   }
 
-  @Public()
+  @Roles(Role.admin)
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({ description: 'Activity Created' })
   @ApiBody({ type: CreateSingleActivityDto })
+  @ApiBearerAuth()
   @Post(':id')
   create(
     @Param('id', ParseIntPipe) activityId: number,
@@ -72,26 +78,27 @@ export class SingleActivityController {
     return this.singleActivityService.create(dto, activityId);
   }
 
-  @Public()
   @HttpCode(HttpStatus.FOUND)
   @ApiFoundResponse({ description: 'All activities found' })
+  @ApiBearerAuth()
   @Get()
   findAll() {
     return this.singleActivityService.findAll();
   }
 
-  @Public()
   @HttpCode(HttpStatus.FOUND)
   @ApiFoundResponse({ description: 'Activity Found' })
+  @ApiBearerAuth()
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.singleActivityService.findOne(+id);
   }
 
-  @Public()
+  @Roles(Role.admin)
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({ description: 'Activity updated' })
   @ApiBody({ type: CreateSingleActivityDto })
+  @ApiBearerAuth()
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) activitiesId: number,
@@ -100,9 +107,10 @@ export class SingleActivityController {
     return this.singleActivityService.update(activitiesId, dto);
   }
 
-  @Public()
+  @Roles(Role.admin)
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ description: 'Activity deleted' })
+  @ApiBearerAuth()
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.singleActivityService.remove(+id);
