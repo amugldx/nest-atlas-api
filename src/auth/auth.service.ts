@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, HttpException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
@@ -126,7 +126,7 @@ export class AuthService {
       })
       .catch((error) => {
         if (error) {
-          throw new ForbiddenException('Unable to delete user');
+          throw new HttpException('Unable to delete user', 400);
         }
       });
     return 'user deleted';
