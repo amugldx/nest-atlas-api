@@ -40,6 +40,15 @@ export class AuthController {
   }
 
   @Public()
+  @Post('signup/ad')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiCreatedResponse({ description: 'User Registeration' })
+  @ApiBody({ type: AuthDto })
+  signupAd(@Body() dto: AuthDto): Promise<Tokens> {
+    return this.authService.signupAd(dto);
+  }
+
+  @Public()
   @Post('signin/email')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ description: 'User Login by email' })

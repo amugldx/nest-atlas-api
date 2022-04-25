@@ -45,6 +45,33 @@ export class AuthService {
     return tokens;
   }
 
+  async signupAd(dto: AuthDto): Promise<Tokens> {
+    const hash = await argon.hash(dto.password);
+
+    const user = await this.prisma.user
+      .create({
+        data: {
+          email: dto.email,
+          username: dto.username,
+          hash,
+          role: Role.admin,
+        },
+      })
+      .catch((error) => {
+        if (error instanceof PrismaClientKnownRequestError) {
+          if (error.code === 'P2002') {
+            throw new ForbiddenException('User already exists');
+          }
+        }
+        throw error;
+      });
+
+    const tokens = await this.getTokens(user.id, user.email, user.role);
+    await this.updateRtHash(user.id, tokens.refresh_token);
+
+    return tokens;
+  }
+
   async signinEmail(dto: Partial<AuthDto>): Promise<Tokens> {
     const user = await this.prisma.user.findUnique({
       where: {
