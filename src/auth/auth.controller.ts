@@ -42,7 +42,7 @@ export class AuthController {
   @Public()
   @Post('signup/ad')
   @HttpCode(HttpStatus.CREATED)
-  @ApiCreatedResponse({ description: 'User Registeration' })
+  @ApiCreatedResponse({ description: 'Admin Registeration' })
   @ApiBody({ type: AuthDto })
   signupAd(@Body() dto: AuthDto): Promise<Tokens> {
     return this.authService.signupAd(dto);
