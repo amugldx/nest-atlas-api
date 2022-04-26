@@ -16,7 +16,6 @@ import {
 import { HotelService } from './hotel.service';
 import { CreateHotelDto } from './dto/create-hotel.dto';
 import {
-  ApiBearerAuth,
   ApiBody,
   ApiConsumes,
   ApiCreatedResponse,
@@ -41,7 +40,6 @@ export class HotelController {
   @Post(':id/picture')
   @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
-  @ApiBearerAuth()
   @ApiBody({
     schema: {
       type: 'object',
@@ -63,7 +61,6 @@ export class HotelController {
   @Roles(Role.admin)
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({ description: 'Hotel Created' })
-  @ApiBearerAuth()
   @ApiBody({ type: CreateHotelDto })
   @Post()
   create(@Body() dto: CreateHotelDto): Promise<Hotel> {
@@ -72,7 +69,6 @@ export class HotelController {
 
   @HttpCode(HttpStatus.FOUND)
   @ApiFoundResponse({ description: 'All hotels recieved' })
-  @ApiBearerAuth()
   @Get()
   findAll(): Promise<
     (Hotel & {
@@ -84,7 +80,6 @@ export class HotelController {
 
   @HttpCode(HttpStatus.FOUND)
   @ApiFoundResponse({ description: 'hotel with given id recieved' })
-  @ApiBearerAuth()
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number): Promise<
     Hotel & {
@@ -100,7 +95,6 @@ export class HotelController {
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({ description: 'hotel with given id updated' })
   @ApiBody({ type: CreateHotelDto })
-  @ApiBearerAuth()
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -112,7 +106,6 @@ export class HotelController {
   @Roles(Role.admin)
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ description: 'hotel with given id deleted' })
-  @ApiBearerAuth()
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number): Promise<boolean> {
     return this.hotelService.remove(id);
@@ -120,7 +113,6 @@ export class HotelController {
 
   @HttpCode(HttpStatus.FOUND)
   @ApiFoundResponse({ description: 'hotel with given location recieved' })
-  @ApiBearerAuth()
   @Get(':location')
   findHotelWithLocation(
     @Param('location') location: string,
@@ -130,7 +122,6 @@ export class HotelController {
 
   @HttpCode(HttpStatus.FOUND)
   @ApiFoundResponse({ description: 'Featured hotels recieved' })
-  @ApiBearerAuth()
   @Get('featured')
   findHotelFeatured(): Promise<void | Hotel[]> {
     return this.hotelService.findHotelFeatured();

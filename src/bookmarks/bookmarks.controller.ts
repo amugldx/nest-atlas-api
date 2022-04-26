@@ -12,7 +12,6 @@ import {
 import { BookmarksService } from './bookmarks.service';
 import { CreateBookmarkDto } from './dto/create-bookmark.dto';
 import {
-  ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
   ApiOkResponse,
@@ -30,7 +29,6 @@ export class BookmarksController {
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({ description: 'Bookmark created' })
   @ApiBody({ type: CreateBookmarkDto })
-  @ApiBearerAuth()
   create(
     @Param('hotelId', ParseIntPipe) hotelId: number,
     @GetCurrentUserId() userId: number,
@@ -42,7 +40,6 @@ export class BookmarksController {
   @Get()
   @HttpCode(HttpStatus.FOUND)
   @ApiFoundResponse({ description: 'Bookmark recieved' })
-  @ApiBearerAuth()
   findAll() {
     return this.bookmarksService.findAll();
   }
@@ -50,7 +47,6 @@ export class BookmarksController {
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ description: 'Bookmark deleted' })
-  @ApiBearerAuth()
   remove(@Param('id', ParseIntPipe) bookmarkId: number) {
     return this.bookmarksService.remove(bookmarkId);
   }

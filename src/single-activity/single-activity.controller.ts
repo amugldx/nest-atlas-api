@@ -16,7 +16,6 @@ import {
 import { SingleActivityService } from './single-activity.service';
 import { CreateSingleActivityDto } from './dto/create-single-activity.dto';
 import {
-  ApiBearerAuth,
   ApiBody,
   ApiConsumes,
   ApiCreatedResponse,
@@ -41,7 +40,6 @@ export class SingleActivityController {
   @Post(':id/picture')
   @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
-  @ApiBearerAuth()
   @ApiBody({
     schema: {
       type: 'object',
@@ -64,7 +62,6 @@ export class SingleActivityController {
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({ description: 'Activity Created' })
   @ApiBody({ type: CreateSingleActivityDto })
-  @ApiBearerAuth()
   @Post(':id')
   create(
     @Param('id', ParseIntPipe) activityId: number,
@@ -80,7 +77,6 @@ export class SingleActivityController {
 
   @HttpCode(HttpStatus.FOUND)
   @ApiFoundResponse({ description: 'All activities found' })
-  @ApiBearerAuth()
   @Get()
   findAll() {
     return this.singleActivityService.findAll();
@@ -88,7 +84,6 @@ export class SingleActivityController {
 
   @HttpCode(HttpStatus.FOUND)
   @ApiFoundResponse({ description: 'Activity Found' })
-  @ApiBearerAuth()
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.singleActivityService.findOne(+id);
@@ -98,7 +93,6 @@ export class SingleActivityController {
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({ description: 'Activity updated' })
   @ApiBody({ type: CreateSingleActivityDto })
-  @ApiBearerAuth()
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) activitiesId: number,
@@ -110,7 +104,6 @@ export class SingleActivityController {
   @Roles(Role.admin)
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ description: 'Activity deleted' })
-  @ApiBearerAuth()
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.singleActivityService.remove(+id);

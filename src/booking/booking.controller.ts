@@ -13,7 +13,6 @@ import {
 import { BookingService } from './booking.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import {
-  ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
   ApiFoundResponse,
@@ -31,7 +30,6 @@ export class BookingController {
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({ description: 'Booking created' })
   @ApiBody({ type: CreateBookingDto })
-  @ApiBearerAuth()
   create(
     @Param('id', ParseIntPipe) hotelId: number,
     @Body() dto: CreateBookingDto,
@@ -42,7 +40,6 @@ export class BookingController {
 
   @HttpCode(HttpStatus.FOUND)
   @ApiFoundResponse({ description: 'Bookings recieved' })
-  @ApiBearerAuth()
   @Get()
   findAll(@GetCurrentUserId() userId: number) {
     return this.bookingService.findAll(userId);
@@ -50,7 +47,6 @@ export class BookingController {
 
   @HttpCode(HttpStatus.FOUND)
   @ApiFoundResponse({ description: 'Booking recieved' })
-  @ApiBearerAuth()
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.bookingService.findOne(id);
@@ -60,7 +56,6 @@ export class BookingController {
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({ description: 'Booking updated' })
   @ApiBody({ type: CreateBookingDto })
-  @ApiBearerAuth()
   update(
     @Param('hotelId') hotelId: number,
     @Body() dto: Partial<CreateBookingDto>,
@@ -72,7 +67,6 @@ export class BookingController {
   @Delete(':bookingId')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ description: 'Booking deleted' })
-  @ApiBearerAuth()
   remove(@Param('bookingId', ParseIntPipe) bookingId: number) {
     return this.bookingService.remove(bookingId);
   }

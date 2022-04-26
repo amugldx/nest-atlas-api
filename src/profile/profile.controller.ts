@@ -18,7 +18,6 @@ import { ProfileDto } from './dtos/profile.dto';
 import {
   ApiCreatedResponse,
   ApiBody,
-  ApiBearerAuth,
   ApiTags,
   ApiConsumes,
 } from '@nestjs/swagger';
@@ -34,7 +33,6 @@ export class ProfileController {
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({ description: 'Picture Uploaded' })
   @UseInterceptors(FileInterceptor('file'))
-  @ApiBearerAuth()
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -58,7 +56,6 @@ export class ProfileController {
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({ description: 'Profile data added' })
   @ApiBody({ type: ProfileDto })
-  @ApiBearerAuth()
   createProfile(
     @Body() dto: ProfileDto,
     @GetCurrentUserId() userId: number,
@@ -70,7 +67,6 @@ export class ProfileController {
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({ description: 'Profile data updated' })
   @ApiBody({ type: ProfileDto })
-  @ApiBearerAuth()
   updateProfile(
     @Body() dto: ProfileDto,
     @GetCurrentUserId() userId: number,
@@ -81,7 +77,6 @@ export class ProfileController {
   @Get('/me')
   @HttpCode(HttpStatus.FOUND)
   @ApiFoundResponse({ description: 'Data successfully featched' })
-  @ApiBearerAuth()
   getProfile(@GetCurrentUserId() userId: number): Promise<Profile> {
     return this.profileService.getProfile(userId);
   }
@@ -89,7 +84,6 @@ export class ProfileController {
   @Get('/:id')
   @HttpCode(HttpStatus.FOUND)
   @ApiFoundResponse({ description: 'Data successfully featched' })
-  @ApiBearerAuth()
   getProfileById(@Param('id', ParseIntPipe) id: number): Promise<Profile> {
     return this.profileService.getProfile(id);
   }

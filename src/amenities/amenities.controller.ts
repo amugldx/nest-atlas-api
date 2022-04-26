@@ -11,12 +11,7 @@ import {
 } from '@nestjs/common';
 import { AmenitiesService } from './amenities.service';
 import { CreateAmenityDto } from './dto/create-amenity.dto';
-import {
-  ApiBearerAuth,
-  ApiBody,
-  ApiCreatedResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBody, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { Hotel, Amenity, Role } from '@prisma/client';
 import { Roles } from '../common/decorators/roles.decorator';
 import { AdminGuard } from '../common/guards/roles.guard';
@@ -30,7 +25,6 @@ export class AmenitiesController {
   @Roles(Role.admin)
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({ description: 'Amenity Created' })
-  @ApiBearerAuth()
   @ApiBody({
     type: CreateAmenityDto,
     description: 'Recieves hotel id as id paramerter',
@@ -51,7 +45,6 @@ export class AmenitiesController {
   @Roles(Role.admin)
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({ description: 'Amenity Updated' })
-  @ApiBearerAuth()
   @ApiBody({
     type: CreateAmenityDto,
     description: 'Recieves hotel id as parameter',
